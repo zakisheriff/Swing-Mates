@@ -1,11 +1,13 @@
 import { io, Socket } from 'socket.io-client';
 
-// Replace with your machine's IP address if testing on a real device
-// For simulator, localhost is usually fine, but 10.0.2.2 for Android emulator
-const SERVER_URL = 'http://172.28.242.194:3000';
+// PRODUCTION: Replace with your DigitalOcean App URL after deployment
+// Example: 'https://swing-mates-server-xxxxx.ondigitalocean.app'
+// For local development, use your machine's IP
+const SERVER_URL = 'http://10.28.114.194:3000'; // TODO: Update after DigitalOcean deployment
 
 class SocketService {
     public socket: Socket | null = null;
+
 
     connect() {
         if (this.socket) return; // Prevent overwriting existing connection

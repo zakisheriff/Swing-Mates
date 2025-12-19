@@ -6,6 +6,15 @@ const cors = require('cors');
 const app = express();
 app.use(cors());
 
+// Health check endpoint for DigitalOcean
+app.get('/', (req, res) => {
+    res.json({ status: 'ok', message: 'Swing Mates Server is running!' });
+});
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
@@ -17,6 +26,7 @@ const io = new Server(server, {
 const rooms = {};
 
 const PORT = process.env.PORT || 3000;
+
 
 io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
@@ -141,6 +151,7 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`SERVER RUNNING ON PORT ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });

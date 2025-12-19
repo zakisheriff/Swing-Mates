@@ -5,6 +5,7 @@ import GraffitiBackground from '@/components/GraffitiBackground';
 import MessyInput from '@/components/MessyInput';
 import SpiderSymbol from '@/components/SpiderSymbol';
 import WebShoot from '@/components/WebShoot';
+import WebSlinger from '@/components/WebSlinger';
 import socketService from '@/services/socket';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
@@ -32,6 +33,8 @@ export default function HomeScreen() {
     const [username, setUsername] = useState('');
     const [webShots, setWebShots] = useState<{ id: number, x: number, y: number }[]>([]);
     const [toast, setToast] = useState({ visible: false, message: '', type: 'error' as 'error' | 'success' });
+    const [webSlingerCoords, setWebSlingerCoords] = useState({ x: 0, y: 0 });
+    const [webSlingerActive, setWebSlingerActive] = useState(false);
 
     useEffect(() => {
         socketService.connect();
@@ -43,6 +46,7 @@ export default function HomeScreen() {
 
     const handleBackgroundTap = (evt: any) => {
         Keyboard.dismiss();
+        setWebSlingerActive(false); // Fade away the web when touching elsewhere
         const { locationX, locationY } = evt.nativeEvent;
         const id = Date.now();
 
@@ -150,6 +154,8 @@ export default function HomeScreen() {
                                                 onChangeText={setUsername}
                                                 rotate="-1deg"
                                                 borderColor="black"
+                                                onWebTrigger={(x, y) => { setWebSlingerCoords({ x, y }); setWebSlingerActive(true); }}
+                                                onWebRelease={() => setWebSlingerActive(false)}
                                             />
                                             <MessyInput
                                                 label="ROOM CODE"
@@ -158,6 +164,8 @@ export default function HomeScreen() {
                                                 onChangeText={(text) => setRoomId(text.replace(/[^0-9]/g, ''))}
                                                 rotate="1deg"
                                                 borderColor="black"
+                                                onWebTrigger={(x, y) => { setWebSlingerCoords({ x, y }); setWebSlingerActive(true); }}
+                                                onWebRelease={() => setWebSlingerActive(false)}
                                                 keyboardType="numeric"
                                                 maxLength={5}
                                             />
@@ -194,6 +202,13 @@ export default function HomeScreen() {
                 </SafeAreaView>
 
                 <ComicForeground />
+
+                {/* Full-screen WebSlinger - RENDERED LAST to be on top of everything */}
+                <WebSlinger
+                    targetX={webSlingerCoords.x}
+                    targetY={webSlingerCoords.y}
+                    active={webSlingerActive}
+                />
             </View>
         </TouchableWithoutFeedback>
     );
