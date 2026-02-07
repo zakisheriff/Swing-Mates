@@ -3,7 +3,17 @@ import { io, Socket } from 'socket.io-client';
 // PRODUCTION: Replace with your DigitalOcean App URL after deployment
 // Example: 'https://swing-mates-server-xxxxx.ondigitalocean.app'
 // For local development, use your machine's IP
-const SERVER_URL = 'http://10.28.114.194:3000'; // TODO: Update after DigitalOcean deployment
+import { Platform } from 'react-native';
+
+// PRODUCTION: Replace with your DigitalOcean App URL after deployment
+// Example: 'https://swing-mates-server-xxxxx.ondigitalocean.app'
+// For local development, use your machine's IP
+const SERVER_IP = '10.28.114.194'; // REPLACE THIS WITH YOUR COMPUTER'S LOCAL IP FOR NATIVE TESTING
+const SERVER_PORT = '3000';
+
+const SERVER_URL = Platform.OS === 'web'
+    ? `http://localhost:${SERVER_PORT}`
+    : `http://${SERVER_IP}:${SERVER_PORT}`;
 
 class SocketService {
     public socket: Socket | null = null;

@@ -1,7 +1,7 @@
 import { Canvas, Path, Skia, SkPath } from '@shopify/react-native-skia';
 import * as ExpoMediaLibrary from 'expo-media-library';
 import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import { GestureResponderEvent, LayoutChangeEvent, PanResponder, StyleSheet, View } from 'react-native';
+import { GestureResponderEvent, LayoutChangeEvent, PanResponder, Platform, StyleSheet, View } from 'react-native';
 import { Colors } from '../constants/Colors';
 import socketService from '../services/socket';
 
@@ -144,23 +144,17 @@ const DrawingCanvas = forwardRef<CanvasRef, CanvasProps>(({ roomId, color, strok
         if (!svgPath) return null;
         const { width, height } = canvasSizeRef.current;
         if (width <= 1 || height <= 1) {
-            // Canvas not ready, return unscaled
             return Skia.Path.MakeFromSVGString(svgPath);
         }
 
-        const scaleX = width / VIRTUAL_WIDTH;
-        const scaleY = height / VIRTUAL_HEIGHT;
+        const path = Skia.Path.MakeFromSVGString(svgPath);
+        if (!path) return null;
 
-        const scaledPath = svgPath.replace(
-            /([ML])\s*([\d.-]+)\s+([\d.-]+)/g,
-            (_, cmd, x, y) => {
-                const scaledX = parseFloat(x) * scaleX;
-                const scaledY = parseFloat(y) * scaleY;
-                return `${cmd} ${scaledX} ${scaledY}`;
-            }
-        );
+        const matrix = Skia.Matrix();
+        matrix.scale(width / VIRTUAL_WIDTH, height / VIRTUAL_HEIGHT);
+        path.transform(matrix);
 
-        return Skia.Path.MakeFromSVGString(scaledPath);
+        return path;
     };
 
     // Scale SVG path string from local to normalized
@@ -169,15 +163,12 @@ const DrawingCanvas = forwardRef<CanvasRef, CanvasProps>(({ roomId, color, strok
         const scaleX = VIRTUAL_WIDTH / width;
         const scaleY = VIRTUAL_HEIGHT / height;
 
-        const svgPath = localPath.toSVGString();
-        return svgPath.replace(
-            /([ML])\s*([\d.-]+)\s+([\d.-]+)/g,
-            (_, cmd, x, y) => {
-                const scaledX = parseFloat(x) * scaleX;
-                const scaledY = parseFloat(y) * scaleY;
-                return `${cmd} ${scaledX.toFixed(2)} ${scaledY.toFixed(2)}`;
-            }
-        );
+        const pathCopy = localPath.copy();
+        const matrix = Skia.Matrix();
+        matrix.scale(scaleX, scaleY);
+        pathCopy.transform(matrix);
+
+        return pathCopy.toSVGString();
     };
 
     useImperativeHandle(ref, () => ({
@@ -405,87 +396,90 @@ const DrawingCanvas = forwardRef<CanvasRef, CanvasProps>(({ roomId, color, strok
                     });
                 }
             },
-            onPanResponderRelease: (evt: GestureResponderEvent) => {
-                if (isEyedropperActiveRef.current) return;
-
-                // Shape mode: finalize the shape
-                if (shapeModeRef.current !== 'none' && shapeStartPoint.current) {
-                    let { locationX, locationY } = evt.nativeEvent;
-                    const { width, height } = canvasSizeRef.current;
-                    locationX = Math.max(0, Math.min(locationX, width));
-                    locationY = Math.max(0, Math.min(locationY, height));
-
-                    const shapePath = createShapePath(
-                        shapeStartPoint.current,
-                        { x: locationX, y: locationY },
-                        shapeModeRef.current
-                    );
-
-                    if (shapePath) {
-                        const normalizedPath = scalePathToNormalized(shapePath);
-                        const strokeData: Stroke = {
-                            path: shapePath,
-                            color: colorRef.current,
-                            strokeWidth: strokeWidthRef.current,
-                            userId,
-                            isEraser: false,
-                            brushConfig: brushConfigRef.current,
-                        };
-
-                        setPaths(prev => [...prev, strokeData]);
-                        setRedoStack([]);
-
-                        socketService.emit('draw-stroke', {
-                            roomId,
-                            path: normalizedPath,
-                            color: colorRef.current,
-                            strokeWidth: strokeWidthRef.current,
-                            isEraser: false
-                        });
-                    }
-
-                    shapeStartPoint.current = null;
-                    setCurrentPathState(null);
-                    return;
-                }
-
-                // Freehand mode
-                if (currentPath.current) {
-                    const normalizedPath = scalePathToNormalized(currentPath.current);
-                    const currentColor = colorRef.current;
-                    const currentStrokeWidth = strokeWidthRef.current;
-                    const currentIsEraser = isEraserRef.current;
-
-                    const strokeData: Stroke = {
-                        path: currentPath.current.copy(),
-                        color: currentColor,
-                        strokeWidth: currentStrokeWidth,
-                        userId,
-                        isEraser: currentIsEraser,
-                        brushConfig: brushConfigRef.current,
-                    };
-
-                    setPaths(prev => [...prev, strokeData]);
-                    setRedoStack([]);
-
-                    socketService.emit('draw-stroke', {
-                        roomId,
-                        path: normalizedPath,
-                        color: currentColor,
-                        strokeWidth: currentStrokeWidth,
-                        isEraser: currentIsEraser
-                    });
-
-                    currentPath.current = null;
-                    setCurrentPathState(null);
-                }
-
-                // Reset tracking for next stroke
-                lastValidPosition.current = null;
-                previousPoint.current = null;
-            },
+            onPanResponderRelease: (evt: GestureResponderEvent) => handlePanResponderEnd(evt),
+            onPanResponderTerminate: (evt: GestureResponderEvent) => handlePanResponderEnd(evt),
         })
     ).current;
+
+    const handlePanResponderEnd = (evt: GestureResponderEvent) => {
+        if (isEyedropperActiveRef.current) return;
+
+        // Shape mode: finalize the shape
+        if (shapeModeRef.current !== 'none' && shapeStartPoint.current) {
+            let { locationX, locationY } = evt.nativeEvent;
+            const { width, height } = canvasSizeRef.current;
+            locationX = Math.max(0, Math.min(locationX, width));
+            locationY = Math.max(0, Math.min(locationY, height));
+
+            const shapePath = createShapePath(
+                shapeStartPoint.current,
+                { x: locationX, y: locationY },
+                shapeModeRef.current
+            );
+
+            if (shapePath) {
+                const normalizedPath = scalePathToNormalized(shapePath);
+                const strokeData: Stroke = {
+                    path: shapePath,
+                    color: colorRef.current,
+                    strokeWidth: strokeWidthRef.current,
+                    userId,
+                    isEraser: false,
+                    brushConfig: brushConfigRef.current,
+                };
+
+                setPaths(prev => [...prev, strokeData]);
+                setRedoStack([]);
+
+                socketService.emit('draw-stroke', {
+                    roomId,
+                    path: normalizedPath,
+                    color: colorRef.current,
+                    strokeWidth: strokeWidthRef.current,
+                    isEraser: false
+                });
+            }
+
+            shapeStartPoint.current = null;
+            setCurrentPathState(null);
+            return;
+        }
+
+        // Freehand mode
+        if (currentPath.current) {
+            const normalizedPath = scalePathToNormalized(currentPath.current);
+            const currentColor = colorRef.current;
+            const currentStrokeWidth = strokeWidthRef.current;
+            const currentIsEraser = isEraserRef.current;
+
+            const strokeData: Stroke = {
+                path: currentPath.current.copy(),
+                color: currentColor,
+                strokeWidth: currentStrokeWidth,
+                userId,
+                isEraser: currentIsEraser,
+                brushConfig: brushConfigRef.current,
+            };
+
+            setPaths(prev => [...prev, strokeData]);
+            setRedoStack([]);
+
+            socketService.emit('draw-stroke', {
+                roomId,
+                path: normalizedPath,
+                color: currentColor,
+                strokeWidth: currentStrokeWidth,
+                isEraser: currentIsEraser
+            });
+
+            currentPath.current = null;
+            setCurrentPathState(null);
+        }
+
+        // Reset tracking for next stroke
+        lastValidPosition.current = null;
+        previousPoint.current = null;
+    };
 
     useEffect(() => {
         const handleDrawStroke = (data: any) => {
@@ -596,6 +590,7 @@ const DrawingCanvas = forwardRef<CanvasRef, CanvasProps>(({ roomId, color, strok
                                     strokeJoin={config.strokeJoin}
                                     strokeCap={config.strokeCap}
                                     opacity={p.isEraser ? 1 : config.opacity}
+                                    blendMode={p.isEraser ? 'clear' : 'srcOver'}
                                 />
                             </React.Fragment>
                         );
@@ -611,6 +606,7 @@ const DrawingCanvas = forwardRef<CanvasRef, CanvasProps>(({ roomId, color, strok
                             strokeWidth={p.isEraser ? p.strokeWidth * 2 : p.strokeWidth}
                             strokeJoin="round"
                             strokeCap="round"
+                            blendMode={p.isEraser ? 'clear' : 'srcOver'}
                         />
                     ))}
 
@@ -624,11 +620,12 @@ const DrawingCanvas = forwardRef<CanvasRef, CanvasProps>(({ roomId, color, strok
                             strokeJoin={brushConfig.strokeJoin}
                             strokeCap={brushConfig.strokeCap}
                             opacity={isEraser ? 1 : brushConfig.opacity}
+                            blendMode={isEraser ? 'clear' : 'srcOver'}
                         />
                     )}
                 </Canvas>
             </View>
-            <View style={styles.gestureOverlay} {...panResponder.panHandlers} />
+            <View style={styles.gestureOverlay as any} {...panResponder.panHandlers} />
         </View>
     );
 });
@@ -638,12 +635,12 @@ export default DrawingCanvas;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: Colors.spiderWhite,
+        backgroundColor: 'transparent',
         position: 'relative',
     },
     canvasWrapper: {
         flex: 1,
-        backgroundColor: Colors.spiderWhite,
+        backgroundColor: 'transparent',
     },
     canvas: {
         flex: 1,
@@ -654,5 +651,13 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
         backgroundColor: 'transparent',
         zIndex: 10,
+        ...Platform.select({
+            web: {
+                // @ts-ignore - Web only styles
+                cursor: 'crosshair',
+                userSelect: 'none',
+                touchAction: 'none',
+            }
+        })
     }
 });
