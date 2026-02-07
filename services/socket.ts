@@ -5,15 +5,14 @@ import { io, Socket } from 'socket.io-client';
 // For local development, use your machine's IP
 import { Platform } from 'react-native';
 
-// PRODUCTION: Replace with your DigitalOcean App URL after deployment
-// Example: 'https://swing-mates-server-xxxxx.ondigitalocean.app'
+// PRODUCTION: Use env var or default to DigitalOcean/Fly.io URL
 // For local development, use your machine's IP
 const SERVER_IP = '10.28.114.194'; // REPLACE THIS WITH YOUR COMPUTER'S LOCAL IP FOR NATIVE TESTING
-const SERVER_PORT = '3000';
+const SERVER_PORT = '8080'; // Fly.io default is 8080 in toml
 
-const SERVER_URL = Platform.OS === 'web'
+const SERVER_URL = process.env.EXPO_PUBLIC_SERVER_URL || (Platform.OS === 'web'
     ? `http://localhost:${SERVER_PORT}`
-    : `http://${SERVER_IP}:${SERVER_PORT}`;
+    : `http://${SERVER_IP}:${SERVER_PORT}`);
 
 class SocketService {
     public socket: Socket | null = null;

@@ -398,6 +398,8 @@ const DrawingCanvas = forwardRef<CanvasRef, CanvasProps>(({ roomId, color, strok
             },
             onPanResponderRelease: (evt: GestureResponderEvent) => handlePanResponderEnd(evt),
             onPanResponderTerminate: (evt: GestureResponderEvent) => handlePanResponderEnd(evt),
+            onPanResponderTerminationRequest: () => false,
+            onShouldBlockNativeResponder: () => true,
         })
     ).current;
 

@@ -8,6 +8,7 @@
     "android": "concurrently \"npm run server\" \"expo start --android --clear\"",
     "ios": "concurrently \"npm run server\" \"expo start --ios --clear\"",
     "web": "concurrently \"npm run server\" \"expo start --web --clear\"",
+    "build:web": "expo export -p web",
     "lint": "expo lint",
     "postinstall": "npx setup-skia-web"
   },
