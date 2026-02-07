@@ -223,7 +223,8 @@ export default function ToolBar({
             >
                 <KeyboardAvoidingView
                     style={styles.modalOverlay}
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    behavior="padding"
+                    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
                 >
                     <View style={styles.pickerContent}>
                         <Text style={styles.pickerTitle}>PICK YOUR COLOR!</Text>
@@ -388,7 +389,7 @@ const styles = StyleSheet.create({
     },
     pickerContent: {
         width: '85%',
-        maxHeight: '80%',
+        maxHeight: '70%',
         backgroundColor: '#222',
         padding: 20,
         borderRadius: 4,

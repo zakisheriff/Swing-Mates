@@ -4,7 +4,7 @@ import DimensionGlitchOverlay from '@/components/DimensionGlitchOverlay';
 import GraffitiBackground from '@/components/GraffitiBackground';
 import MessyInput from '@/components/MessyInput';
 import RoomHistoryOverlay from '@/components/RoomHistoryOverlay';
-import SpiderSymbol from '@/components/SpiderSymbol';
+import WebLayoutFix from '@/components/WebLayoutFix';
 import WebShoot from '@/components/WebShoot';
 import WebSlinger from '@/components/WebSlinger';
 import { saveRoomToHistory } from '@/services/roomHistory';
@@ -14,7 +14,7 @@ import { useRouter } from 'expo-router';
 import { History, Swords } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { Dimensions, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import Animated, { FadeInDown, FadeInUp, ZoomIn } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { height, width } = Dimensions.get('window');
@@ -120,6 +120,7 @@ export default function HomeScreen() {
     return (
         <TouchableWithoutFeedback onPress={handleBackgroundTap}>
             <View style={styles.container}>
+                <WebLayoutFix />
                 <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
                 <GraffitiBackground />
                 <View style={styles.overlay} />

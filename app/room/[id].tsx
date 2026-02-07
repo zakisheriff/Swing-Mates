@@ -307,6 +307,7 @@ export default function RoomScreen() {
                     settings={toolSettings}
                     onSettingsChange={(updates: Partial<ToolSettings>) => setToolSettings(prev => ({ ...prev, ...updates }))}
                     selectedColor={color}
+                    onClose={() => setShowDrawingTools(false)}
                 />
             )}
 

@@ -168,7 +168,6 @@ export default function MessyInput({
             {/* Main Input Box */}
             <View
                 style={[styles.inputBox, { borderColor }]}
-                onTouchStart={handlePress}
             >
                 <TextInput
                     ref={inputRef}
@@ -179,8 +178,8 @@ export default function MessyInput({
                         setIsFocused(false);
                         setWebActive(false);
                     }}
+                    onPressIn={handlePress}
                     editable={true}
-                    pointerEvents={isFocused ? 'auto' : 'none'}
                     {...props}
                 />
             </View>

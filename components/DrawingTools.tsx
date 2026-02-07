@@ -8,7 +8,8 @@ import {
     Pencil,
     Slash,
     Square,
-    Triangle
+    Triangle,
+    X
 } from 'lucide-react-native';
 import React from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -66,6 +67,7 @@ interface DrawingToolsProps {
     settings: ToolSettings;
     onSettingsChange: (settings: Partial<ToolSettings>) => void;
     selectedColor: string;
+    onClose: () => void;
 }
 
 // ============ MAIN COMPONENT ============
@@ -73,7 +75,8 @@ interface DrawingToolsProps {
 export default function DrawingTools({
     settings,
     onSettingsChange,
-    selectedColor
+    selectedColor,
+    onClose
 }: DrawingToolsProps) {
 
     const handleToolSelect = (tool: ToolType) => {
@@ -95,6 +98,14 @@ export default function DrawingTools({
 
     return (
         <View style={styles.container}>
+            {/* Header with Close Button */}
+            <View style={styles.header}>
+                <Text style={styles.headerTitle}>DRAWING TOOLS</Text>
+                <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
+                    <X color="#FF2D95" size={24} />
+                </TouchableOpacity>
+            </View>
+
             {/* Main Tool Row */}
             <View style={styles.toolRow}>
                 <Text style={styles.sectionLabel}>TOOLS</Text>
@@ -288,6 +299,24 @@ const styles = StyleSheet.create({
         margin: 8,
         borderWidth: 2,
         borderColor: '#00D4FF',
+    },
+    header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+        paddingBottom: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(0, 212, 255, 0.3)',
+    },
+    headerTitle: {
+        color: '#00D4FF',
+        fontFamily: 'Bangers_400Regular',
+        fontSize: 18,
+        letterSpacing: 2,
+    },
+    closeBtn: {
+        padding: 4,
     },
     toolRow: {
         marginBottom: 8,
