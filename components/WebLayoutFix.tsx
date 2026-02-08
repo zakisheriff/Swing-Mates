@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/Colors';
+import { Colors } from '../constants/Colors';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 

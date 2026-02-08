@@ -1,8 +1,8 @@
-import DrawingCanvas, { CanvasRef } from '@/components/DrawingCanvas';
-import SpiderAlert from '@/components/SpiderAlert';
-import ToolBar from '@/components/ToolBar';
-import { Colors } from '@/constants/Colors';
-import socketService from '@/services/socket';
+import DrawingCanvas, { CanvasRef } from '../../../components/DrawingCanvas';
+import SpiderAlert from '../../../components/SpiderAlert';
+import ToolBar from '../../../components/ToolBar';
+import { Colors } from '../../../constants/Colors';
+import socketService from '../../../services/socket';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';

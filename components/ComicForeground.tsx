@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/Colors';
+import { Colors } from '../constants/Colors';
 import React from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
 import ComicBoom from './ComicBoom';

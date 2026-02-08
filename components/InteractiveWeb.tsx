@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/Colors';
+import { Colors } from '../constants/Colors';
 import { Canvas, Group, Path, Skia } from "@shopify/react-native-skia";
 import React, { useMemo } from 'react';
 import { StyleSheet } from 'react-native';

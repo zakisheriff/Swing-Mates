@@ -1,4 +1,4 @@
-import { Colors } from '@/constants/Colors';
+import { Colors } from '../constants/Colors';
 import { router } from 'expo-router';
 import { Clock, Play, Trash2, X } from 'lucide-react-native';
 import React, { useEffect, useState } from 'react';
