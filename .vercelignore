@@ -1,0 +1,15 @@
+node_modules
+.git
+.expo
+deploy_to_hf.sh
+server
+ios
+android
+assets
+coverage
+App.js
+App.tsx
+babel.config.js
+metro.config.js
+tsconfig.json
+package-lock.json
