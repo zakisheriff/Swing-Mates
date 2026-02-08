@@ -1,4 +1,15 @@
+---
+title: Swing Mates Server
+emoji: 🎨
+colorFrom: purple
+colorTo: pink
+sdk: docker
+pinned: false
+app_port: 7860
+---
+
 # Swing Mates Server
+
 
 Real-time drawing collaboration server for the Swing Mates app.
 
