@@ -154,13 +154,13 @@ export default function HomeScreen() {
                                 {/* SWING MATES Title - Tight like iOS */}
                                 <View style={styles.titleWrapper}>
                                     <View style={styles.swingContainer}>
-                                        <Text style={[styles.titleShadow, { top: 3, left: -3, color: ATSV.milesRed }]}>SWING</Text>
-                                        <Text style={[styles.titleShadow, { top: 2, left: 2, color: ATSV.electricBlue }]}>SWING</Text>
+                                        <Text style={[styles.titleShadow, { top: 3, left: -3, color: ATSV.milesRed }]}>INK</Text>
+                                        <Text style={[styles.titleShadow, { top: 2, left: 2, color: ATSV.electricBlue }]}>INK</Text>
                                         <Text style={[styles.titleText]}>SWING</Text>
                                     </View>
                                     <View style={styles.matesContainer}>
-                                        <Text style={[styles.titleShadow, { top: 3, left: 3, color: ATSV.electricBlue }]}>MATES</Text>
-                                        <Text style={[styles.titleShadow, { top: -2, left: -2, color: ATSV.hotPink }]}>MATES</Text>
+                                        <Text style={[styles.titleShadow, { top: 3, left: 3, color: ATSV.electricBlue }]}>VERSE</Text>
+                                        <Text style={[styles.titleShadow, { top: -2, left: -2, color: ATSV.hotPink }]}>VERSE</Text>
                                         <Text style={[styles.titleText]}>MATES</Text>
                                     </View>
                                 </View>
