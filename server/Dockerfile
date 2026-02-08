@@ -1,0 +1,15 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci --only=production
+
+COPY . .
+
+# Hugging Face Spaces expects the application to listen on port 7860
+ENV PORT=7860
+EXPOSE 7860
+
+CMD ["npm", "start"]

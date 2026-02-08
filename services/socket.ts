@@ -8,7 +8,7 @@ import { Platform } from 'react-native';
 // PRODUCTION: Use env var or default to DigitalOcean/Fly.io URL
 // For local development, use your machine's IP
 const SERVER_IP = '10.28.114.194'; // REPLACE THIS WITH YOUR COMPUTER'S LOCAL IP FOR NATIVE TESTING
-const SERVER_PORT = '8080'; // Fly.io default is 8080 in toml
+const SERVER_PORT = '3000'; // Default to 3000 to match server
 
 const SERVER_URL = process.env.EXPO_PUBLIC_SERVER_URL || (Platform.OS === 'web'
     ? `http://localhost:${SERVER_PORT}`
