@@ -156,12 +156,12 @@ export default function HomeScreen() {
                                     <View style={styles.swingContainer}>
                                         <Text style={[styles.titleShadow, { top: 3, left: -3, color: ATSV.milesRed }]}>INK</Text>
                                         <Text style={[styles.titleShadow, { top: 2, left: 2, color: ATSV.electricBlue }]}>INK</Text>
-                                        <Text style={[styles.titleText]}>SWING</Text>
+                                        <Text style={[styles.titleText]}>INK</Text>
                                     </View>
                                     <View style={styles.matesContainer}>
                                         <Text style={[styles.titleShadow, { top: 3, left: 3, color: ATSV.electricBlue }]}>VERSE</Text>
                                         <Text style={[styles.titleShadow, { top: -2, left: -2, color: ATSV.hotPink }]}>VERSE</Text>
-                                        <Text style={[styles.titleText]}>MATES</Text>
+                                        <Text style={[styles.titleText]}>VERSE</Text>
                                     </View>
                                 </View>
 
