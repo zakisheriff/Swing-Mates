@@ -1,4 +1,3 @@
-import { Colors } from '../constants/Colors';
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useState } from 'react';
 import {
@@ -21,6 +20,7 @@ import Animated, {
     withSpring,
     withTiming,
 } from 'react-native-reanimated';
+import { Colors } from '../constants/Colors';
 
 interface MessyInputProps extends TextInputProps {
     label: string;
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
         padding: 8,
         paddingTop: 10,
         fontFamily: 'Bangers_400Regular',
-        fontSize: 18,
+        fontSize: Platform.OS === 'web' ? Math.max(16, 18) : 18, // Ensure min 16px on web to prevent zoom
         color: 'black',
         // Removed backgroundColor: '#F5F5F5' to keep it transparent and show web
         minHeight: 42,

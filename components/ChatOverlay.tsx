@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
         height: 36,
         marginRight: 6,
         borderRadius: 4,
-        fontSize: 14,
+        fontSize: Platform.OS === 'web' ? 16 : 14, // Min 16px for web to prevent zoom
         color: 'black',
         textAlignVertical: 'center',
     },

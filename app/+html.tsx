@@ -18,10 +18,11 @@ export default function Root({ children }: PropsWithChildren) {
                 {/* 
           This viewport tag is essential for preventing pinch-to-zoom on mobile 
           browsers while ensuring the app display correctly on all devices.
+          Added interactive-widget=resizes-content to help with Android keyboard behavior.
         */}
                 <meta
                     name="viewport"
-                    content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+                    content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content"
                 />
 
                 {/*
@@ -39,9 +40,21 @@ export default function Root({ children }: PropsWithChildren) {
 }
 
 const responsiveBackground = `
+html, body {
+  height: 100%;
+  overflow: hidden; /* Prevent scroll/bounce on the document itself */
+  overscroll-behavior: none; /* strict no-bounce */
+  -webkit-text-size-adjust: 100%; /* Prevent font scaling on rotation */
+}
 body {
   background-color: #fff;
-  touch-action: pan-x pan-y; /* Disables double-tap zoom */
+  touch-action: none; /* aggressive touch blocking - let React Native Gesture Handler manage it */
+}
+/* Ensure the root React div takes full height */
+#root {
+  display: flex;
+  height: 100%;
+  width: 100%;
 }
 @media (prefers-color-scheme: dark) {
   body {
