@@ -1,4 +1,5 @@
 import * as Haptics from 'expo-haptics';
+import { MessageSquare, Send, X } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Keyboard, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
@@ -167,7 +168,7 @@ export default function ChatOverlay({ roomId, userId }: ChatProps) {
     if (!isOpen) {
         return (
             <TouchableOpacity style={styles.openButton} onPress={handleOpen}>
-                <Text style={styles.openButtonText}>💬</Text>
+                <MessageSquare color="black" size={24} strokeWidth={2.5} />
                 {unreadCount > 0 && (
                     <View style={styles.badge}>
                         <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : unreadCount}</Text>
@@ -212,7 +213,7 @@ export default function ChatOverlay({ roomId, userId }: ChatProps) {
                 <View style={[styles.header, isMobileWeb && styles.mobileWebHeader]}>
                     <Text style={styles.headerTitle}>SQUAD CHAT</Text>
                     <TouchableOpacity style={styles.closeBtn} onPress={handleClose}>
-                        <Text style={styles.closeBtnText}>✕</Text>
+                        <X color="white" size={18} strokeWidth={3} />
                     </TouchableOpacity>
                 </View>
 
@@ -253,7 +254,7 @@ export default function ChatOverlay({ roomId, userId }: ChatProps) {
                         blurOnSubmit={false}
                     />
                     <TouchableOpacity style={styles.sendBtn} onPress={() => sendMessage()}>
-                        <Text style={styles.sendText}>➤</Text>
+                        <Send color="black" size={18} strokeWidth={2.5} />
                     </TouchableOpacity>
                 </View>
             </Animated.View>
@@ -300,9 +301,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 1,
         shadowRadius: 0,
     },
-    openButtonText: {
-        fontSize: 20,
-    },
     badge: {
         position: 'absolute',
         top: -6,
@@ -342,11 +340,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 4,
-    },
-    closeBtnText: {
-        color: 'white',
-        fontSize: 14,
-        fontWeight: 'bold',
     },
     list: {
         flex: 1,
@@ -418,10 +411,6 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: 'black',
         borderRadius: 4,
-    },
-    sendText: {
-        color: 'black',
-        fontSize: 16,
     },
     mobileWebHeader: {
         paddingVertical: 12,
