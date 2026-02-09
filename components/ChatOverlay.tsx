@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, FlatList, Keyboard, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Dimensions, FlatList, Keyboard, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import { Colors } from '../constants/Colors';
 import socketService from '../services/socket';
@@ -27,6 +27,10 @@ export default function ChatOverlay({ roomId, userId }: ChatProps) {
     const [unreadCount, setUnreadCount] = useState(0);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const glitchX = useSharedValue(0);
+
+    // Use window dimensions for responsive layout
+    const { width, height } = useWindowDimensions();
+    const isMobileWeb = Platform.OS === 'web' && width < 768;
 
     const isOpenRef = useRef(isOpen);
     const textRef = useRef(text); // Store text in ref for Android
@@ -157,8 +161,8 @@ export default function ChatOverlay({ roomId, userId }: ChatProps) {
         : (keyboardHeight > 0 ? keyboardHeight + 10 : 90);
 
     const chatHeight = Platform.OS === 'android'
-        ? Math.min(SCREEN_HEIGHT * 0.45, 320)
-        : Math.min(SCREEN_HEIGHT * 0.45, 350);
+        ? Math.min(height * 0.45, 320)
+        : Math.min(height * 0.45, 350);
 
     if (!isOpen) {
         return (
@@ -173,15 +177,39 @@ export default function ChatOverlay({ roomId, userId }: ChatProps) {
         );
     }
 
+    // Dynamic styles for mobile web full screen
+    const containerStyle = isMobileWeb
+        ? {
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: height,
+            zIndex: 9999, // Ensure it's on top of everything
+            padding: 0
+        }
+        : {
+            bottom: chatBottom,
+            height: chatHeight
+        };
+
+    const panelStyle = isMobileWeb
+        ? {
+            borderRadius: 0,
+            borderWidth: 0,
+            height: height,
+        }
+        : {};
+
     return (
         <Animated.View
             entering={FadeIn.duration(200)}
             exiting={FadeOut.duration(150)}
-            style={[styles.container, { bottom: chatBottom, height: chatHeight }]}
+            style={[styles.container, containerStyle]}
         >
-            <Animated.View style={[styles.panel, animatedStyle]}>
+            <Animated.View style={[styles.panel, panelStyle, animatedStyle]}>
                 {/* Header with close button */}
-                <View style={styles.header}>
+                <View style={[styles.header, isMobileWeb && styles.mobileWebHeader]}>
                     <Text style={styles.headerTitle}>SQUAD CHAT</Text>
                     <TouchableOpacity style={styles.closeBtn} onPress={handleClose}>
                         <Text style={styles.closeBtnText}>✕</Text>
@@ -210,7 +238,7 @@ export default function ChatOverlay({ roomId, userId }: ChatProps) {
                 />
 
                 {/* Input row */}
-                <View style={styles.inputRow}>
+                <View style={[styles.inputRow, isMobileWeb && styles.mobileWebInputRow]}>
                     <TextInput
                         style={styles.input}
                         value={text}
@@ -394,5 +422,12 @@ const styles = StyleSheet.create({
     sendText: {
         color: 'black',
         fontSize: 16,
+    },
+    mobileWebHeader: {
+        paddingVertical: 12,
+    },
+    mobileWebInputRow: {
+        paddingVertical: 12,
+        paddingBottom: 20, // Extra padding for mobile browsers safe area
     },
 });
