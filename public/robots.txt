@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://inkverse.theoneatom.com/sitemap.xml

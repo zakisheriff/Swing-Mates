@@ -1,3 +1,10 @@
+import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
+import { History, Swords } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import ComicForeground from '../components/ComicForeground';
 import CustomToast from '../components/CustomToast';
 import DimensionGlitchOverlay from '../components/DimensionGlitchOverlay';
@@ -9,15 +16,8 @@ import WebShoot from '../components/WebShoot';
 import WebSlinger from '../components/WebSlinger';
 import { saveRoomToHistory } from '../services/roomHistory';
 import socketService from '../services/socket';
-import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
-import { History, Swords } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
-import { Dimensions, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
-const { height, width } = Dimensions.get('window');
+// ... (rest of imports)
 
 // ACROSS THE SPIDER-VERSE AUTHENTIC COLORS
 const ATSV = {

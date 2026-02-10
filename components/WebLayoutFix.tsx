@@ -1,6 +1,6 @@
-import { Colors } from '../constants/Colors';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
+import { Colors } from '../constants/Colors';
 
 export default function WebLayoutFix() {
     if (Platform.OS !== 'web') return null;
@@ -10,11 +10,7 @@ export default function WebLayoutFix() {
         document.body.style.backgroundColor = Colors.spiderBlack;
         document.documentElement.style.backgroundColor = Colors.spiderBlack;
 
-        // Prevent viewport shifting/resizing on virtual keyboard open
-        const metaViewport = document.querySelector('meta[name="viewport"]');
-        if (metaViewport) {
-            metaViewport.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, interactive-widget=resizes-content');
-        }
+
 
         // Add global styles to prevent rubber-banding and white flashes
         const style = document.createElement('style');

@@ -34,7 +34,9 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "name": "InkVerse",
+      "description": "InkVerse - An interactive multiplayer drawing experience across the spider-verse. Join the room, draw with friends, and swing through dimensions."
     },
     "plugins": [
       "expo-router",
