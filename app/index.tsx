@@ -51,12 +51,12 @@ export default function HomeScreen() {
     const handleBackgroundTap = (evt: any) => {
         Keyboard.dismiss();
         setWebSlingerActive(false); // Fade away the web when touching elsewhere
-        const { locationX, locationY } = evt.nativeEvent;
+        const { pageX, pageY } = evt.nativeEvent;
         // Use timestamp + random string for guaranteed uniqueness
         const id = Date.now() + Math.random().toString(36).substring(2, 9);
 
         // Add web shot
-        setWebShots(prev => [...prev, { id, x: locationX, y: locationY }]);
+        setWebShots(prev => [...prev, { id, x: pageX, y: pageY }]);
     };
 
     const createSession = () => {
