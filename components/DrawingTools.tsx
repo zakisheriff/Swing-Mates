@@ -1,7 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import {
     Circle,
-    Eraser,
     Minus,
     PaintBucket,
     Pen,
@@ -134,13 +133,7 @@ export default function DrawingTools({
                         onPress={() => handleToolSelect('fill')}
                     />
 
-                    {/* Eraser Tool */}
-                    <ToolButton
-                        icon={<Eraser color="#FFF" size={18} />}
-                        label="Eraser"
-                        isActive={settings.currentTool === 'eraser'}
-                        onPress={() => handleToolSelect('eraser')}
-                    />
+
                 </ScrollView>
             </View>
 
