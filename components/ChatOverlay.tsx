@@ -13,18 +13,22 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   FadeIn,
   FadeOut,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSequence,
   withTiming,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "../constants/Colors";
 import socketService from "../services/socket";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
+const BUTTON_SIZE = 48;
 
 interface Message {
   id: string;
@@ -49,7 +53,26 @@ export default function ChatOverlay({ roomId, userId }: ChatProps) {
 
   // Use window dimensions for responsive layout
   const { width, height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const isMobileWeb = Platform.OS === "web" && width < 768;
+  const isMobile =
+    isMobileWeb || Platform.OS === "ios" || Platform.OS === "android";
+
+  // Draggable button state
+  const initialX = width - BUTTON_SIZE - 15;
+  const initialY =
+    Platform.OS === "android"
+      ? height - BUTTON_SIZE - 105 // 105 from original style
+      : height - BUTTON_SIZE - 95; // 95 from original style
+
+  const translateX = useSharedValue(initialX);
+  const translateY = useSharedValue(initialY);
+  const context = useSharedValue({ x: 0, y: 0 });
+
+  // Update position if screen dimensions change significantly (e.g. orientation)
+  // Only if close to the edge to avoid snapping while dragging?
+  // For simplicity, we typically trust the user's placement or reset on reload.
+  // We'll leave it persistent for the session.
 
   const isOpenRef = useRef(isOpen);
   const textRef = useRef(text); // Store text in ref for Android
@@ -220,63 +243,97 @@ export default function ChatOverlay({ roomId, userId }: ChatProps) {
     transform: [{ translateX: glitchX.value }],
   }));
 
-  // Calculate chat position based on keyboard. For mobile web we use the
-  // visual viewport keyboard height (no extra padding) so the panel sits just
-  // above the keyboard; for native add a small offset.
-  const chatBottom =
-    Platform.OS === "android"
-      ? keyboardHeight > 0
-        ? keyboardHeight + 10
-        : 100
-      : Platform.OS === "web" && isMobileWeb
-        ? keyboardHeight > 0
-          ? keyboardHeight
-          : 0
-        : keyboardHeight > 0
-          ? keyboardHeight + 10
-          : 90;
+  const buttonAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+    ],
+  }));
 
-  const chatHeight =
-    Platform.OS === "android"
-      ? Math.min(height * 0.45, 320)
-      : Math.min(height * 0.45, 350);
+  const tapGesture = Gesture.Tap().onEnd(() => {
+    runOnJS(handleOpen)();
+  });
+
+  const dragGesture = Gesture.Pan()
+    .onStart(() => {
+      context.value = { x: translateX.value, y: translateY.value };
+    })
+    .onUpdate((event) => {
+      translateX.value = event.translationX + context.value.x;
+      translateY.value = event.translationY + context.value.y;
+    })
+    .onEnd(() => {
+      // Constraints
+      const maxX = width - BUTTON_SIZE;
+      const maxY = height - BUTTON_SIZE;
+      let finalX = translateX.value;
+      let finalY = translateY.value;
+
+      // Clamp X
+      if (finalX < 0) finalX = 0;
+      else if (finalX > maxX) finalX = maxX;
+
+      // Clamp Y
+      if (finalY < insets.top) finalY = insets.top;
+      else if (finalY > maxY - insets.bottom) finalY = maxY - insets.bottom;
+
+      // Animate to clamped position
+      translateX.value = withTiming(finalX, { duration: 200 });
+      translateY.value = withTiming(finalY, { duration: 200 });
+    });
+
+  const composedGesture = Gesture.Simultaneous(dragGesture, tapGesture);
+
+  // Calculate chat position based on keyboard.
+  const chatBottom = isMobile
+    ? keyboardHeight // On mobile (web/native), bottom is just keyboard height for full screen
+    : keyboardHeight > 0
+      ? keyboardHeight + 10
+      : 90; // Desktop/Tablet floating style
+
+  const chatHeight = isMobile
+    ? undefined // Full screen handled by container style
+    : Math.min(height * 0.45, 350);
 
   if (!isOpen) {
     return (
-      <TouchableOpacity style={styles.openButton} onPress={handleOpen}>
-        <MessageSquare color="black" size={24} strokeWidth={2.5} />
-        {unreadCount > 0 && (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>
-              {unreadCount > 9 ? "9+" : unreadCount}
-            </Text>
-          </View>
-        )}
-      </TouchableOpacity>
+      <GestureDetector gesture={composedGesture}>
+        <Animated.View style={[styles.openButton, buttonAnimatedStyle]}>
+          <MessageSquare color="black" size={24} strokeWidth={2.5} />
+          {unreadCount > 0 && (
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </Text>
+            </View>
+          )}
+        </Animated.View>
+      </GestureDetector>
     );
   }
 
-  // Dynamic styles for mobile web full screen
-  const containerStyle = isMobileWeb
+  // Dynamic styles for mobile full screen
+  const containerStyle = isMobile
     ? {
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: chatBottom, // anchor above web keyboard
-        zIndex: 9999,
-        padding: 0,
-      }
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: chatBottom, // anchor above keyboard
+      zIndex: 9999,
+      padding: 0,
+      height: undefined, // ensure no fixed height overrides bottom
+    }
     : {
-        bottom: chatBottom,
-        height: chatHeight,
-      };
+      bottom: chatBottom,
+      height: chatHeight,
+    };
 
-  const panelStyle = isMobileWeb
+  const panelStyle = isMobile
     ? {
-        borderRadius: 0,
-        borderWidth: 0,
-        maxHeight: Math.max(0, height - chatBottom),
-      }
+      borderRadius: 0,
+      borderWidth: 0,
+      flex: 1, // Take up all available space in container
+    }
     : {};
 
   return (
@@ -287,7 +344,13 @@ export default function ChatOverlay({ roomId, userId }: ChatProps) {
     >
       <Animated.View style={[styles.panel, panelStyle, animatedStyle]}>
         {/* Header with close button */}
-        <View style={[styles.header, isMobileWeb && styles.mobileWebHeader]}>
+        <View
+          style={[
+            styles.header,
+            isMobile && { paddingTop: Math.max(8, insets.top + 8) },
+            isMobileWeb && styles.mobileWebHeader,
+          ]}
+        >
           <Text style={styles.headerTitle}>SQUAD CHAT</Text>
           <TouchableOpacity style={styles.closeBtn} onPress={handleClose}>
             <X color="white" size={18} strokeWidth={3} />
@@ -331,8 +394,12 @@ export default function ChatOverlay({ roomId, userId }: ChatProps) {
         <View
           style={[
             styles.inputRow,
-            isMobileWeb && styles.mobileWebInputRow,
-            // When keyboard is visible on mobile web, add bottom padding
+            isMobile && styles.mobileWebInputRow, // keep the larger padding from mobileWebInputRow if desired, or override
+            isMobile && {
+              paddingBottom:
+                keyboardHeight > 0 ? 8 : Math.max(8, insets.bottom + 8),
+            },
+            // Only add extra padding on web if needed, native handles it via container bottom
             isMobileWeb && keyboardHeight
               ? { paddingBottom: keyboardHeight + 8 }
               : null,
@@ -385,8 +452,8 @@ const styles = StyleSheet.create({
   },
   openButton: {
     position: "absolute",
-    bottom: Platform.OS === "android" ? 105 : 95,
-    right: 15,
+    top: 0,
+    left: 0,
     backgroundColor: Colors.spiderRed,
     width: 48,
     height: 48,
