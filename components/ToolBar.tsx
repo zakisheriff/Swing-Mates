@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
     },
     pickerContent: {
         width: '85%',
-        maxHeight: '70%',
+        maxHeight: '90%',
         backgroundColor: '#222',
         padding: 20,
         borderRadius: 4,

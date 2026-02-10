@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
     hueSlider: {
         height: HUE_SLIDER_HEIGHT,
         borderRadius: 10,
-        marginTop: 12,
+        marginTop: 8,
         overflow: 'hidden',
         borderWidth: 2,
         borderColor: '#00D4FF',
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     infoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 12,
+        marginTop: 8,
         gap: 8,
     },
     preview: {
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
         gap: 4,
     },
     valuesContainer: {
-        marginTop: 8,
+        marginTop: 6,
     },
     valueText: {
         color: '#888',
@@ -501,7 +501,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     doneBtn: {
-        marginTop: 12,
+        marginTop: 8,
         backgroundColor: '#FF2D95',
         paddingHorizontal: 32,
         paddingVertical: 10,
